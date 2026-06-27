@@ -1,0 +1,8 @@
+node_modules/
+backend/.env
+.env
+uploads/
+scratch/
+*.log
+server_out.txt
+server_err.txt

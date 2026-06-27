@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đại học Trà Vinh - Quản lý Tài sản CNTT</title>
+    <script>(async()=>{if(!location.search.includes('_f=1')&&'serviceWorker'in navigator){await Promise.all((await navigator.serviceWorker.getRegistrations()).map(r=>r.unregister()));await Promise.all((await caches.keys()).map(k=>caches.delete(k)));location.search='?_f=1'}})()</script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="description" content="Hệ thống Quản lý Tài sản CNTT - Đại học Trà Vinh">
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2563EB">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="TVU-ITAM">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="/assets/images/logo-tvu.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/main.css?v=38">
+    <link rel="stylesheet" href="assets/css/app.css?v=8">
+    <style>
+    .user-topbar{background:linear-gradient(135deg,#0F172A,#1E293B)!important;border-bottom:none!important;box-shadow:0 4px 20px rgba(15,23,42,.35)!important}
+    @keyframes logoShine{0%{background-position:-200% center}100%{background-position:200% center}}
+    .user-topbar-logo{font-size:1.15rem!important;letter-spacing:.02em!important}
+    .user-topbar-logo span{background:linear-gradient(90deg,#fff,#93c5fd,#fff);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:logoShine 4s ease-in-out infinite}
+    .user-topbar-logo img{border-color:rgba(255,255,255,.3)!important;box-shadow:0 2px 8px rgba(0,0,0,.1)!important}
+    .user-topbar-nav a{color:rgba(255,255,255,.8)!important}
+    .user-topbar-nav a:hover{background:rgba(255,255,255,.15)!important;color:#fff!important}
+    .user-topbar-nav a.active{background:rgba(255,255,255,.2)!important;color:#fff!important}
+    .user-topbar-right .avatar{border-color:rgba(255,255,255,.35)!important}
+    .user-topbar-right button{background:rgba(255,255,255,.12)!important;color:rgba(255,255,255,.8)!important}
+    .user-topbar-right button:hover{background:rgba(255,255,255,.2)!important;color:#fff!important}
+    @media(max-width:768px){
+        .user-topbar{padding:0 .85rem;height:60px;gap:4px}
+        .user-topbar-logo{gap:8px;font-size:.8rem;flex-shrink:0}
+        .user-topbar-logo span{display:none}
+        .user-topbar-nav{gap:0;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex:1;min-width:0;margin:0 4px}
+        .user-topbar-nav::-webkit-scrollbar{display:none}
+        .user-topbar-nav a{font-size:.73rem;padding:6px 10px;flex-shrink:0}
+        .user-topbar-right{gap:4px;flex-shrink:0}
+        .user-topbar-right button{width:32px!important;height:32px!important;margin-left:4px!important}
+        .avatar{width:30px!important;height:30px!important;font-size:.7rem!important}
+        .modal-overlay .modal{max-width:calc(100vw - 24px)!important;margin:0 auto}
+        .modal-overlay .modal-body>div>[style*="grid-template-columns"]{grid-template-columns:1fr!important}
+        .modal-overlay .modal-body .form-row{flex-direction:column;gap:8px!important}
+    }
+    @media(max-width:480px){
+        .user-topbar{padding:0 .6rem;height:54px}
+        .user-topbar-logo img{width:30px;height:30px}
+        .user-topbar-nav a{font-size:.68rem;padding:5px 8px}
+        .modal-overlay .modal{padding:16px;border-radius:14px}
+        .modal-overlay .modal-header{padding-bottom:12px}
+        .modal-overlay .modal-body{padding:4px 0 12px}
+    }
+    </style>
+    <style>.settings-grid{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1rem}@media(min-width:769px){.settings-grid{flex-direction:row;gap:1.25rem}}@media(max-width:480px){.dash-stats:has(> :nth-child(3):last-child)>:nth-child(3){grid-column:1/-1}.dash-stats:has(> :nth-child(3):last-child) .dash-stat-card{padding:.7rem .75rem;gap:.5rem}.dash-stats:has(> :nth-child(3):last-child) .dash-stat-icon{width:28px;height:28px}.dash-stats:has(> :nth-child(3):last-child) .dash-stat-icon svg{width:14px;height:14px}.dash-stats:has(> :nth-child(3):last-child) .dash-stat-value{font-size:1rem}.dash-stats:has(> :nth-child(3):last-child) .dash-stat-label{font-size:.65rem}}.stat-skel{display:none}@media(max-width:640px){.user-dash-grid{grid-template-columns:1fr!important}}@media(max-width:640px){.user-dash-cols{grid-template-columns:1fr!important}}.user-topbar{display:none!important}</style>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+</head>
+<body>
+<div class="app-layout">
+    <!-- USER TOPBAR -->
+    <div class="user-topbar" id="userTopbar">
+        <div class="user-topbar-logo">
+            <img src="assets/images/logotvu.jpg" alt="TVU">
+            <span>TVU-ITAM</span>
+        </div>
+        <div class="user-topbar-nav">
+            <a href="#dashboard" data-page="dashboard" class="active">Trang chủ</a>
+            <a href="#devices" data-page="devices">Thiết bị</a>
+            <a href="#maintenance" data-page="maintenance">Bảo trì</a>
+            <a href="#incidents" data-page="incidents">Sự cố</a>
+            <a href="#notifications" data-page="notifications">Thông báo</a>
+        </div>
+        <div class="user-topbar-right">
+            <div style="position:relative">
+                <div class="avatar" id="userTopbarAvatar" style="cursor:pointer">U</div>
+            </div>
+            <button id="userLogoutBtn" onclick="if(confirm('Bạn có chắc muốn đăng xuất?')){API.clearAuth();window.location.href='/';}" style="background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;margin-left:8px" title="Đăng xuất" onmouseover="this.style.background='rgba(255,255,255,.2)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,.1)';this.style.color='rgba(255,255,255,.7)'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </button>
+        </div>
+    </div>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <img src="assets/images/logotvu.jpg" alt="Đại học Trà Vinh" class="logo-img">
+                <div class="logo-info">
+                    <h2>Đại học Trà Vinh</h2>
+                    <p>TVU-ITAM</p>
+                </div>
+            </div>
+
+        <nav class="sidebar-nav" id="sidebarNav">
+            <span class="nav-section-title">Tổng quan</span>
+            <a class="nav-item active" data-page="dashboard" href="#dashboard" id="nav-dashboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                Dashboard
+            </a>
+
+            <span class="nav-section-title">Quản lý</span>
+            <a class="nav-item" data-page="devices" href="#devices" id="nav-devices">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                Thiết bị
+            </a>
+            <a class="nav-item" data-page="maintenance" href="#maintenance" id="nav-maintenance">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                Bảo trì
+                <span class="nav-badge" id="badgeMaintenance" style="display:none">0</span>
+            </a>
+            <a class="nav-item" data-page="incidents" href="#incidents" id="nav-incidents">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Sự cố
+                <span class="nav-badge" id="badgeIncidents" style="display:none">0</span>
+            </a>
+            <a class="nav-item" data-page="inventory" href="#inventory" id="nav-inventory">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                Kiểm kê
+            </a>
+            <a class="nav-item" data-page="warehouse" href="#warehouse" id="nav-warehouse">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Kho
+            </a>
+            <a class="nav-item" data-page="transfers" href="#transfers" id="nav-transfers">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+                Điều chuyển
+            </a>
+            <a class="nav-item" data-page="disposals" href="#disposals" id="nav-disposals">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Thanh lý
+            </a>
+
+            <span class="nav-section-title" id="nav-section-admin">Quản trị</span>
+            <a class="nav-item" data-page="users" href="#users" id="nav-users">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                Người dùng
+            </a>
+            <a class="nav-item" data-page="loginHistory" href="#loginHistory" id="nav-loginHistory">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v5l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+                Lịch sử đăng nhập
+            </a>
+            <a class="nav-item" data-page="logs" href="#logs" id="nav-logs">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+                Nhật ký hệ thống
+            </a>
+            <a class="nav-item" data-page="settings" href="#settings" id="nav-settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                Cài đặt
+            </a>
+            <a class="nav-item" data-page="departments" href="#departments" id="nav-departments">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+                Phòng ban
+            </a>
+            <a class="nav-item" data-page="categories" href="#categories" id="nav-categories">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                Loại thiết bị
+            </a>
+
+            <span class="nav-section-title" id="nav-section-reports">Báo cáo</span>
+            <a class="nav-item" data-page="reports" href="#reports" id="nav-reports">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Thống kê
+            </a>
+            <a class="nav-item" data-page="depreciation" href="#depreciation" id="nav-depreciation">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7v7c0 5 5 9 10 9s10-4 10-9V7L12 2z"/></svg>
+                Khấu hao
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-profile" id="userProfileBtn">
+                <div class="avatar" id="sidebarAvatar">SA</div>
+                <div class="user-info">
+                    <div class="user-name" id="sidebarUserName">Loading...</div>
+                    <div class="user-role" id="sidebarUserRole">—</div>
+                    <div class="user-detail" id="sidebarUserDetail" style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem;line-height:1.3"></div>
+                </div>
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-wrapper">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="header-btn hamburger" id="hamburgerBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <div>
+                    <div class="page-title" id="pageTitle">Dashboard</div>
+                    <div class="page-subtitle" id="pageSubtitle">Tổng quan hệ thống</div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-stat" id="headerTotalDevices">
+                    <span class="stat-val">—</span>
+                    <span class="stat-lbl">Tổng thiết bị</span>
+                </div>
+                <div class="header-divider"></div>
+                <div class="header-stat" id="headerActiveDevices">
+                    <span class="stat-val">—</span>
+                    <span class="stat-lbl">Đang hoạt động</span>
+                </div>
+                <div class="header-divider"></div>
+                <div class="notif-wrapper">
+                    <button class="header-btn" id="notifBtn" title="Thông báo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+                        <span class="notif-dot" id="notifDot"></span>
+                        <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+                    </button>
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-dropdown-header">
+                            <span class="notif-dropdown-title">Thông báo</span>
+                            <span class="notif-dropdown-count" id="notifDropdownCount">0</span>
+                        </div>
+                        <div class="notif-dropdown-body" id="notifDropdownBody">
+                            <div class="notif-dropdown-empty">Đang tải...</div>
+                        </div>
+                        <div class="notif-dropdown-footer">
+                            <a href="#" id="notifViewAll" data-page="notifications">Xem tất cả thông báo →</a>
+                        </div>
+                    </div>
+                </div>
+                <button class="header-btn" id="pwaInstallBtn" title="Cài đặt ứng dụng" style="display:none">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                </button>
+                <button class="header-btn" id="logoutBtn" title="Đăng xuất">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Content injected by JS -->
+        </main>
+    </div>
+</div>
+
+<!-- Sidebar overlay for mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- MODALS (injected by pages) -->
+<div id="modalContainer"></div>
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- Scripts -->
+<script src="assets/js/api.js?v=2"></script>
+<script src="assets/js/pages/dashboard.js?v=19"></script>
+<script src="assets/js/pages/devices.js?v=6"></script>
+<script src="assets/js/pages/maintenance.js?v=5"></script>
+<script src="assets/js/pages/incidents.js?v=5"></script>
+<script src="assets/js/pages/transfers.js?v=2"></script>
+<script src="assets/js/pages/disposals.js?v=9"></script>
+<script src="assets/js/pages/users.js?v=2"></script>
+<script src="assets/js/pages/departments.js?v=2"></script>
+<script src="assets/js/pages/categories.js?v=2"></script>
+<script src="assets/js/pages/loginHistory.js?v=2"></script>
+<script src="assets/js/pages/settings.js?v=7"></script>
+<script src="assets/js/pages/logs.js?v=2"></script>
+<script src="assets/js/pages/reports.js?v=17"></script>
+<script src="assets/js/pages/depreciation.js?v=7"></script>
+<script src="assets/js/pages/notifications.js?v=5"></script>
+<script src="assets/js/pages/inventory.js?v=2"></script>
+<script src="assets/js/pages/warehouse.js?v=12"></script>
+<script src="assets/js/app.js?v=5"></script>
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').then(reg => {
+            if (reg.waiting) {
+                reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'activated') {
+                        window.location.reload();
+                    }
+                });
+            });
+            reg.update();
+        });
+    });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Kh?u hao Tài s?n | TVU-ITAM</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#DC2626">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="TVU-ITAM">
+    <link rel="apple-touch-icon" href="/assets/images/logo-tvu.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #2563EB;
+            --bg-base: #F1F5F9;
+            --bg-surface: #FFFFFF;
+            --border: #E2E8F0;
+            --border-light: #F1F5F9;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-base);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 2rem;
+            -webkit-font-smoothing: antialiased;
+        }
+        .print-container { max-width: 1200px; margin: 0 auto; }
+        .report-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.02);
+            overflow: hidden;
+        }
+        .report-header {
+            text-align: center;
+            padding: 2rem 2rem 1.5rem;
+            border-bottom: 2px solid var(--border-light);
+            position: relative;
+        }
+        .report-header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(135deg, #2563EB, #7C3AED);
+            border-radius: 3px;
+        }
+        .gov-label { font-size: .72rem; font-weight: 600; color: var(--text-secondary); letter-spacing: .08em; text-transform: uppercase; }
+        .school-row { display: flex; justify-content: space-between; align-items: center; margin: .5rem 0 .75rem; font-size: .8rem; color: var(--text-secondary); font-weight: 500; }
+        .school-name-main { font-size: 1.2rem; font-weight: 800; color: var(--primary); letter-spacing: .02em; }
+        .school-sub { font-size: .85rem; font-weight: 600; color: var(--text-secondary); }
+        .report-title { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin: .75rem 0 .25rem; letter-spacing: .02em; }
+        .report-info { font-size: .82rem; color: var(--text-muted); margin-top: .5rem; }
+        .report-info strong { color: var(--text-secondary); font-weight: 600; }
+        .report-body { padding: 1.5rem 2rem; }
+        .summary-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .summary-item { flex: 1; min-width: 200px; padding: 1rem 1.25rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-base); }
+        .summary-item .label { font-size: .72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
+        .summary-item .value { font-size: 1.15rem; font-weight: 700; margin-top: .2rem; }
+        .summary-item .value.primary { color: #2563EB; }
+        .summary-item .value.success { color: #059669; }
+        .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+        thead tr { background: #F1F5F9; }
+        th { padding: .65rem .85rem; text-align: left; font-size: .64rem; font-weight: 700; color: #475569; letter-spacing: .03em; text-transform: uppercase; border: 1px solid #CBD5E1; white-space: nowrap; }
+        td { padding: .55rem .85rem; border: 1px solid #E2E8F0; vertical-align: middle; }
+        tbody tr:nth-child(even) { background: rgba(148, 163, 184, 0.03); }
+        
+        .code-cell { font-family: 'JetBrains Mono', 'SF Mono', monospace; font-size: .7rem; font-weight: 600; color: #334155; background: #F1F5F9; padding: .15rem .45rem; border-radius: 5px; white-space: nowrap; }
+        .name-cell { font-weight: 600; color: #1e293b; font-size: .82rem; }
+        .price-cell { font-weight: 700; font-size: .8rem; white-space: nowrap; }
+        .price-cell.original { color: #2563EB; }
+        .price-cell.remaining { color: #059669; }
+        .date-cell { font-size: .78rem; color: #64748B; white-space: nowrap; }
+        .stt-cell { text-align: center; color: var(--text-muted); font-size: .75rem; font-weight: 500; }
+        .badge-year { display: inline-flex; align-items: center; gap: .25rem; padding: .1rem .5rem; border-radius: 12px; font-size: .68rem; font-weight: 600; }
+        .badge-year.y1 { background: #FEF2F2; color: #DC2626; }
+        .badge-year.y0 { background: #F1F5F9; color: #94A3B8; }
+        .total-row td { font-weight: 700; font-size: .85rem; border-top: 2px solid #CBD5E1; background: #F8FAFC !important; }
+        .total-row .price-cell { font-size: .88rem; }
+        .report-footer { padding: 1.25rem 2rem; border-top: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; font-size: .75rem; color: var(--text-muted); }
+        .report-footer strong { color: var(--text-secondary); font-weight: 600; }
+        @media print {
+            body { padding: 0; background: #fff; }
+            .report-card { border: none; border-radius: 0; box-shadow: none; }
+            .table-wrap { border: 1px solid #ddd; }
+            thead tr { background: #F1F5F9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            tbody tr:nth-child(even) { background: rgba(148, 163, 184, 0.03); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .total-row td { background: #F8FAFC !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .code-cell { background: #F1F5F9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .badge-year.y1 { background: #FEF2F2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .badge-year.y0 { background: #F1F5F9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { margin: 1.5cm; }
+        }
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .report-body { padding: 1rem; }
+            .report-header { padding: 1.25rem; }
+            .school-row { flex-direction: column; gap: .25rem; }
+            .summary-row { flex-direction: column; }
+            .report-footer { flex-direction: column; gap: .5rem; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+<div class="print-container">
+    <div class="report-card">
+        <div class="report-header">
+            <div class="gov-label">?y ban nhân dân t?nh Vinh Long</div>
+            <div class="school-row">
+                <span class="school-name-main">Ð?I H?C TRÀ VINH</span>
+                <span class="school-sub">Ð?c l?p – T? do – H?nh phúc</span>
+            </div>
+            <div class="school-sub" style="margin-bottom:.25rem">PHÒNG CÔNG NGH? THÔNG TIN</div>
+            <div class="report-title">BÁO CÁO KH?U HAO TÀI S?N</div>
+            <div class="report-info">
+                S?: <strong>BC-KH-07062026</strong>
+                &nbsp;·&nbsp; Vinh Long, ngày 07 tháng 06 nam 2026
+            </div>
+        </div>
+        <div class="report-body">
+            <div class="summary-row">
+                <div class="summary-item">
+                    <div class="label">T?ng nguyên giá</div>
+                    <div class="value primary">3.184.885.466 ?</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">T?ng giá tr? còn l?i</div>
+                    <div class="value success">3.154.216.070 ?</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">T?ng s? tài s?n</div>
+                    <div class="value" style="color:#7C3AED">72</div>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="text-align:center;width:36px">STT</th>
+                            <th style="width:105px">Mã TS</th>
+                            <th>Tên thi?t b?</th>
+                            <th style="text-align:right">Nguyên giá</th>
+                            <th style="width:95px">Ngày mua</th>
+                            <th style="text-align:center;width:44px">Nam</th>
+                            <th style="text-align:right">Giá tr? còn l?i</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<tr>
+    <td class="stt-cell">1</td>
+    <td><span class="code-cell">TVU-LT-020</span></td>
+    <td class="name-cell">Laptop hi?u tru?ng</td>
+    <td class="price-cell original" style="text-align:right">28.000.000 ?</td>
+    <td class="date-cell">01/04/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">28.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">2</td>
+    <td><span class="code-cell">TVU-PC-101</span></td>
+    <td class="name-cell">Máy tính bàn Hành chính #2</td>
+    <td class="price-cell original" style="text-align:right">14.000.000 ?</td>
+    <td class="date-cell">15/03/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">14.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">3</td>
+    <td><span class="code-cell">TVU-PC-100</span></td>
+    <td class="name-cell">Máy tính bàn Hành chính #1</td>
+    <td class="price-cell original" style="text-align:right">15.000.000 ?</td>
+    <td class="date-cell">01/03/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">15.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">4</td>
+    <td><span class="code-cell">TVU-TESTB05</span></td>
+    <td class="name-cell">Máy ch? HPE ProLiant DL360</td>
+    <td class="price-cell original" style="text-align:right">85.000.000 ?</td>
+    <td class="date-cell">01/05/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">85.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">5</td>
+    <td><span class="code-cell">TVU-TESTB04</span></td>
+    <td class="name-cell">Máy in HP LaserJet Pro</td>
+    <td class="price-cell original" style="text-align:right">5.500.000 ?</td>
+    <td class="date-cell">05/04/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">5.500.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">6</td>
+    <td><span class="code-cell">TVU-TESTB03</span></td>
+    <td class="name-cell">Switch Cisco Catalyst 9200</td>
+    <td class="price-cell original" style="text-align:right">35.000.000 ?</td>
+    <td class="date-cell">10/03/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">35.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">7</td>
+    <td><span class="code-cell">TVU-TESTB02</span></td>
+    <td class="name-cell">Laptop Lenovo ThinkPad X1</td>
+    <td class="price-cell original" style="text-align:right">22.000.000 ?</td>
+    <td class="date-cell">20/02/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">22.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">8</td>
+    <td><span class="code-cell">TVU-TESTB01</span></td>
+    <td class="name-cell">Máy tính Dell OptiPlex 7080</td>
+    <td class="price-cell original" style="text-align:right">15.000.000 ?</td>
+    <td class="date-cell">15/01/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">15.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">9</td>
+    <td><span class="code-cell">TVUDEV-119</span></td>
+    <td class="name-cell">Máy ch? HPE ProLiant DL380 Gen10 #70</td>
+    <td class="price-cell original" style="text-align:right">150.000.000 ?</td>
+    <td class="date-cell">04/10/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">150.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">10</td>
+    <td><span class="code-cell">TVUDEV-118</span></td>
+    <td class="name-cell">Máy ch? Dell PowerEdge R740 #69</td>
+    <td class="price-cell original" style="text-align:right">150.000.000 ?</td>
+    <td class="date-cell">11/12/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">150.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">11</td>
+    <td><span class="code-cell">TVUDEV-117</span></td>
+    <td class="name-cell">Thi?t b? luu tr? NAS Synology DS920+ #68</td>
+    <td class="price-cell original" style="text-align:right">21.527.716 ?</td>
+    <td class="date-cell">29/08/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">21.527.716 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">12</td>
+    <td><span class="code-cell">TVUDEV-116</span></td>
+    <td class="name-cell">Máy ch? HPE ProLiant DL380 Gen10 #67</td>
+    <td class="price-cell original" style="text-align:right">150.000.000 ?</td>
+    <td class="date-cell">12/01/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">150.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">13</td>
+    <td><span class="code-cell">TVUDEV-115</span></td>
+    <td class="name-cell">Máy in HP LaserJet Pro M404dn #66</td>
+    <td class="price-cell original" style="text-align:right">45.000.000 ?</td>
+    <td class="date-cell">06/06/2025</td>
+    <td style="text-align:center"><span class="badge-year y1">1</span></td>
+    <td class="price-cell remaining" style="text-align:right">36.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">14</td>
+    <td><span class="code-cell">TVUDEV-114</span></td>
+    <td class="name-cell">Switch Cisco Catalyst 2960-X #65</td>
+    <td class="price-cell original" style="text-align:right">25.000.000 ?</td>
+    <td class="date-cell">10/10/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">25.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">15</td>
+    <td><span class="code-cell">TVUDEV-112</span></td>
+    <td class="name-cell">Máy chi?u Sony VPL-EX430 #63</td>
+    <td class="price-cell original" style="text-align:right">85.000.000 ?</td>
+    <td class="date-cell">09/02/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">85.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">16</td>
+    <td><span class="code-cell">TVU-DEV-111</span></td>
+    <td class="name-cell">Máy chi?u Panasonic PT-LB305 #62</td>
+    <td class="price-cell original" style="text-align:right">85.000.000 ?</td>
+    <td class="date-cell">12/03/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">85.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">17</td>
+    <td><span class="code-cell">TVUDEV-110</span></td>
+    <td class="name-cell">Máy tính HP ProDesk 600 G6 #61</td>
+    <td class="price-cell original" style="text-align:right">21.723.877 ?</td>
+    <td class="date-cell">19/03/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">21.723.877 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">18</td>
+    <td><span class="code-cell">TVUDEV-109</span></td>
+    <td class="name-cell">Router MikroTik CCR1036-8G-2S+ #60</td>
+    <td class="price-cell original" style="text-align:right">25.000.000 ?</td>
+    <td class="date-cell">01/02/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">25.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">19</td>
+    <td><span class="code-cell">TVUDEV-108</span></td>
+    <td class="name-cell">Máy ch? Dell PowerEdge R740 #59</td>
+    <td class="price-cell original" style="text-align:right">150.000.000 ?</td>
+    <td class="date-cell">22/10/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">150.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">20</td>
+    <td><span class="code-cell">TVUDEV-107</span></td>
+    <td class="name-cell">Laptop Dell Latitude 5420 #58</td>
+    <td class="price-cell original" style="text-align:right">10.902.757 ?</td>
+    <td class="date-cell">15/04/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">10.902.757 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">21</td>
+    <td><span class="code-cell">TVUDEV-106</span></td>
+    <td class="name-cell">Máy ch? HPE ProLiant DL380 Gen10 #57</td>
+    <td class="price-cell original" style="text-align:right">150.000.000 ?</td>
+    <td class="date-cell">09/10/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">150.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">22</td>
+    <td><span class="code-cell">TVUDEV-105</span></td>
+    <td class="name-cell">Thi?t b? luu tr? NAS Synology DS920+ #56</td>
+    <td class="price-cell original" style="text-align:right">23.599.700 ?</td>
+    <td class="date-cell">15/10/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">23.599.700 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">23</td>
+    <td><span class="code-cell">TVUDEV-104</span></td>
+    <td class="name-cell">Màn hình Samsung Odyssey G5 #55</td>
+    <td class="price-cell original" style="text-align:right">27.414.438 ?</td>
+    <td class="date-cell">28/04/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">27.414.438 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">24</td>
+    <td><span class="code-cell">TVUDEV-103</span></td>
+    <td class="name-cell">Laptop ThinkPad X1 Carbon Gen 9 #54</td>
+    <td class="price-cell original" style="text-align:right">22.732.646 ?</td>
+    <td class="date-cell">04/03/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">22.732.646 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">25</td>
+    <td><span class="code-cell">TVUDEV-102</span></td>
+    <td class="name-cell">Máy chi?u Sony VPL-EX430 #53</td>
+    <td class="price-cell original" style="text-align:right">85.000.000 ?</td>
+    <td class="date-cell">17/12/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">85.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">26</td>
+    <td><span class="code-cell">TVUDEV-101</span></td>
+    <td class="name-cell">Máy tính Dell OptiPlex 7080 #52</td>
+    <td class="price-cell original" style="text-align:right">11.153.469 ?</td>
+    <td class="date-cell">21/06/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">11.153.469 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">27</td>
+    <td><span class="code-cell">TVUDEV-100</span></td>
+    <td class="name-cell">Máy ch? Dell PowerEdge R740 #51</td>
+    <td class="price-cell original" style="text-align:right">150.000.000 ?</td>
+    <td class="date-cell">02/07/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">150.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">28</td>
+    <td><span class="code-cell">TVU-WC-001</span></td>
+    <td class="name-cell">Webcam Logitech C922</td>
+    <td class="price-cell original" style="text-align:right">8.566.491 ?</td>
+    <td class="date-cell">18/12/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">8.566.491 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">29</td>
+    <td><span class="code-cell">TVU-MS-001</span></td>
+    <td class="name-cell">Chu?t Logitech B100</td>
+    <td class="price-cell original" style="text-align:right">17.492.141 ?</td>
+    <td class="date-cell">29/07/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">17.492.141 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">30</td>
+    <td><span class="code-cell">TVU-KB-001</span></td>
+    <td class="name-cell">Bàn phím Logitech K120</td>
+    <td class="price-cell original" style="text-align:right">9.142.333 ?</td>
+    <td class="date-cell">25/07/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">9.142.333 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">31</td>
+    <td><span class="code-cell">TVUHDD-002</span></td>
+    <td class="name-cell">? c?ng di d?ng Seagate 4TB</td>
+    <td class="price-cell original" style="text-align:right">13.376.737 ?</td>
+    <td class="date-cell">21/05/2025</td>
+    <td style="text-align:center"><span class="badge-year y1">1</span></td>
+    <td class="price-cell remaining" style="text-align:right">10.701.390 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">32</td>
+    <td><span class="code-cell">TVUHDD-001</span></td>
+    <td class="name-cell">? c?ng di d?ng WD 2TB</td>
+    <td class="price-cell original" style="text-align:right">17.102.813 ?</td>
+    <td class="date-cell">22/10/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">17.102.813 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">33</td>
+    <td><span class="code-cell">TVUNAS-002</span></td>
+    <td class="name-cell">NAS Buffalo TeraStation</td>
+    <td class="price-cell original" style="text-align:right">12.787.968 ?</td>
+    <td class="date-cell">13/04/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">12.787.968 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">34</td>
+    <td><span class="code-cell">TVU-UPS-004</span></td>
+    <td class="name-cell">Màn hình Dell UltraSharp U2422H #44</td>
+    <td class="price-cell original" style="text-align:right">28.930.036 ?</td>
+    <td class="date-cell">15/10/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">28.930.036 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">35</td>
+    <td><span class="code-cell">TVU-UPS-003</span></td>
+    <td class="name-cell">Màn hình Samsung Odyssey G5 #43</td>
+    <td class="price-cell original" style="text-align:right">20.337.981 ?</td>
+    <td class="date-cell">28/10/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">20.337.981 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">36</td>
+    <td><span class="code-cell">TVU-PJ-004</span></td>
+    <td class="name-cell">Thi?t b? luu tr? NAS Synology DS920+ #42</td>
+    <td class="price-cell original" style="text-align:right">22.189.935 ?</td>
+    <td class="date-cell">04/01/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">22.189.935 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">37</td>
+    <td><span class="code-cell">TVU-PJ-003</span></td>
+    <td class="name-cell">Thi?t b? luu tr? NAS Synology DS920+ #41</td>
+    <td class="price-cell original" style="text-align:right">14.007.138 ?</td>
+    <td class="date-cell">13/10/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">14.007.138 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">38</td>
+    <td><span class="code-cell">TVU-MN-012</span></td>
+    <td class="name-cell">Máy chi?u Panasonic PT-LB305 #40</td>
+    <td class="price-cell original" style="text-align:right">85.000.000 ?</td>
+    <td class="date-cell">11/08/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">85.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">39</td>
+    <td><span class="code-cell">TVU-MN-011</span></td>
+    <td class="name-cell">Máy chi?u Sony VPL-EX430 #39</td>
+    <td class="price-cell original" style="text-align:right">85.000.000 ?</td>
+    <td class="date-cell">06/10/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">85.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">40</td>
+    <td><span class="code-cell">TVU-MN-010</span></td>
+    <td class="name-cell">Máy chi?u Panasonic PT-LB305 #38</td>
+    <td class="price-cell original" style="text-align:right">85.000.000 ?</td>
+    <td class="date-cell">23/08/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">85.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">41</td>
+    <td><span class="code-cell">TVU-PR-005</span></td>
+    <td class="name-cell">Máy in da nang Canon MF235 #37</td>
+    <td class="price-cell original" style="text-align:right">45.000.000 ?</td>
+    <td class="date-cell">19/05/2025</td>
+    <td style="text-align:center"><span class="badge-year y1">1</span></td>
+    <td class="price-cell remaining" style="text-align:right">36.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">42</td>
+    <td><span class="code-cell">TVU-PR-004</span></td>
+    <td class="name-cell">Máy in HP LaserJet Pro M404dn #36</td>
+    <td class="price-cell original" style="text-align:right">45.000.000 ?</td>
+    <td class="date-cell">18/10/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">45.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">43</td>
+    <td><span class="code-cell">TVU-PR-003</span></td>
+    <td class="name-cell">Máy in da nang Canon MF235 #35</td>
+    <td class="price-cell original" style="text-align:right">45.000.000 ?</td>
+    <td class="date-cell">11/02/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">45.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">44</td>
+    <td><span class="code-cell">TVU-WF-003</span></td>
+    <td class="name-cell">Switch Cisco Catalyst 2960-X #34</td>
+    <td class="price-cell original" style="text-align:right">25.000.000 ?</td>
+    <td class="date-cell">15/05/2025</td>
+    <td style="text-align:center"><span class="badge-year y1">1</span></td>
+    <td class="price-cell remaining" style="text-align:right">20.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">45</td>
+    <td><span class="code-cell">TVU-RT-001</span></td>
+    <td class="name-cell">Router MikroTik CCR1036-8G-2S+ #33</td>
+    <td class="price-cell original" style="text-align:right">25.000.000 ?</td>
+    <td class="date-cell">10/08/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">25.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">46</td>
+    <td><span class="code-cell">TVU-SW-003</span></td>
+    <td class="name-cell">Switch Cisco Catalyst 2960-X #32</td>
+    <td class="price-cell original" style="text-align:right">25.000.000 ?</td>
+    <td class="date-cell">24/09/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">25.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">47</td>
+    <td><span class="code-cell">TVU-SV-003</span></td>
+    <td class="name-cell">Máy ch? HPE ProLiant DL380 Gen10 #31</td>
+    <td class="price-cell original" style="text-align:right">150.000.000 ?</td>
+    <td class="date-cell">23/07/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">150.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">48</td>
+    <td><span class="code-cell">TVU-SV-002</span></td>
+    <td class="name-cell">Máy ch? Dell PowerEdge R740 #30</td>
+    <td class="price-cell original" style="text-align:right">150.000.000 ?</td>
+    <td class="date-cell">15/07/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">150.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">49</td>
+    <td><span class="code-cell">TVU-LT-012</span></td>
+    <td class="name-cell">Laptop MacBook Pro 14" M2 #29</td>
+    <td class="price-cell original" style="text-align:right">16.795.220 ?</td>
+    <td class="date-cell">11/10/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">16.795.220 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">50</td>
+    <td><span class="code-cell">TVU-LT-011</span></td>
+    <td class="name-cell">Laptop Dell Latitude 5420 #28</td>
+    <td class="price-cell original" style="text-align:right">10.170.217 ?</td>
+    <td class="date-cell">03/12/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">10.170.217 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">51</td>
+    <td><span class="code-cell">TVU-LT-010</span></td>
+    <td class="name-cell">Laptop ThinkPad X1 Carbon Gen 9 #27</td>
+    <td class="price-cell original" style="text-align:right">24.828.003 ?</td>
+    <td class="date-cell">29/01/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">24.828.003 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">52</td>
+    <td><span class="code-cell">TVU-PC-012</span></td>
+    <td class="name-cell">Máy tính van phòng Lenovo M70s #26</td>
+    <td class="price-cell original" style="text-align:right">8.925.440 ?</td>
+    <td class="date-cell">26/03/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">8.925.440 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">53</td>
+    <td><span class="code-cell">TVU-PC-011</span></td>
+    <td class="name-cell">Máy tính HP ProDesk 600 G6 #25</td>
+    <td class="price-cell original" style="text-align:right">26.429.858 ?</td>
+    <td class="date-cell">08/09/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">26.429.858 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">54</td>
+    <td><span class="code-cell">TVU-PC-010</span></td>
+    <td class="name-cell">Máy tính Dell OptiPlex 7080 #24</td>
+    <td class="price-cell original" style="text-align:right">17.376.325 ?</td>
+    <td class="date-cell">02/09/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">17.376.325 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">55</td>
+    <td><span class="code-cell">TVUNAS-001</span></td>
+    <td class="name-cell">? luu tr? NAS Synology</td>
+    <td class="price-cell original" style="text-align:right">24.288.898 ?</td>
+    <td class="date-cell">12/06/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">24.288.898 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">56</td>
+    <td><span class="code-cell">TVU-PJ-002</span></td>
+    <td class="name-cell">Thi?t b? luu tr? NAS Synology DS920+ #22</td>
+    <td class="price-cell original" style="text-align:right">27.744.025 ?</td>
+    <td class="date-cell">08/07/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">27.744.025 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">57</td>
+    <td><span class="code-cell">TVU-UPS-002</span></td>
+    <td class="name-cell">Màn hình Dell UltraSharp U2422H #21</td>
+    <td class="price-cell original" style="text-align:right">6.171.282 ?</td>
+    <td class="date-cell">06/02/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">6.171.282 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">58</td>
+    <td><span class="code-cell">TVU-PR-002</span></td>
+    <td class="name-cell">Máy in HP LaserJet Pro M404dn #20</td>
+    <td class="price-cell original" style="text-align:right">45.000.000 ?</td>
+    <td class="date-cell">21/09/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">45.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">59</td>
+    <td><span class="code-cell">TVU-WF-002</span></td>
+    <td class="name-cell">Router MikroTik CCR1036-8G-2S+ #19</td>
+    <td class="price-cell original" style="text-align:right">25.000.000 ?</td>
+    <td class="date-cell">01/10/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">25.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">60</td>
+    <td><span class="code-cell">TVU-SW-002</span></td>
+    <td class="name-cell">Router MikroTik CCR1036-8G-2S+ #17</td>
+    <td class="price-cell original" style="text-align:right">25.000.000 ?</td>
+    <td class="date-cell">26/08/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">25.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">61</td>
+    <td><span class="code-cell">TVU-MN-002</span></td>
+    <td class="name-cell">Máy chi?u Sony VPL-EX430 #16</td>
+    <td class="price-cell original" style="text-align:right">85.000.000 ?</td>
+    <td class="date-cell">15/10/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">85.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">62</td>
+    <td><span class="code-cell">TVU-PC-006</span></td>
+    <td class="name-cell">Máy tính van phòng Lenovo M70s #15</td>
+    <td class="price-cell original" style="text-align:right">14.816.319 ?</td>
+    <td class="date-cell">13/09/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">14.816.319 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">63</td>
+    <td><span class="code-cell">TVU-PC-005</span></td>
+    <td class="name-cell">Máy tính HP ProDesk 600 G6 #14</td>
+    <td class="price-cell original" style="text-align:right">14.451.651 ?</td>
+    <td class="date-cell">03/11/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">14.451.651 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">64</td>
+    <td><span class="code-cell">TVU-PC-004</span></td>
+    <td class="name-cell">Máy tính Dell OptiPlex 7080 #13</td>
+    <td class="price-cell original" style="text-align:right">24.970.244 ?</td>
+    <td class="date-cell">15/05/2025</td>
+    <td style="text-align:center"><span class="badge-year y1">1</span></td>
+    <td class="price-cell remaining" style="text-align:right">19.976.195 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">65</td>
+    <td><span class="code-cell">TVU-LT-003</span></td>
+    <td class="name-cell">Laptop MacBook Pro 14" M2 #12</td>
+    <td class="price-cell original" style="text-align:right">21.057.647 ?</td>
+    <td class="date-cell">28/01/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">21.057.647 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">66</td>
+    <td><span class="code-cell">TVU-LT-002</span></td>
+    <td class="name-cell">Laptop Dell Latitude 5420 #11</td>
+    <td class="price-cell original" style="text-align:right">26.351.459 ?</td>
+    <td class="date-cell">20/11/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">26.351.459 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">67</td>
+    <td><span class="code-cell">TVU-PC-003</span></td>
+    <td class="name-cell">Máy tính van phòng Lenovo M70s #10</td>
+    <td class="price-cell original" style="text-align:right">16.498.035 ?</td>
+    <td class="date-cell">09/03/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">16.498.035 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">68</td>
+    <td><span class="code-cell">TVU-PJ-001</span></td>
+    <td class="name-cell">Thi?t b? luu tr? NAS Synology DS920+ #8</td>
+    <td class="price-cell original" style="text-align:right">10.494.664 ?</td>
+    <td class="date-cell">06/12/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">10.494.664 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">69</td>
+    <td><span class="code-cell">TVU-MN-001</span></td>
+    <td class="name-cell">Máy chi?u Panasonic PT-LB305 #7</td>
+    <td class="price-cell original" style="text-align:right">85.000.000 ?</td>
+    <td class="date-cell">11/01/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">85.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">70</td>
+    <td><span class="code-cell">TVU-PR-001</span></td>
+    <td class="name-cell">Máy in da nang Canon MF235 #6</td>
+    <td class="price-cell original" style="text-align:right">45.000.000 ?</td>
+    <td class="date-cell">11/04/2026</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">45.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">71</td>
+    <td><span class="code-cell">TVU-SW-001</span></td>
+    <td class="name-cell">Switch Cisco Catalyst 2960-X #5</td>
+    <td class="price-cell original" style="text-align:right">25.000.000 ?</td>
+    <td class="date-cell">11/12/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">25.000.000 ?</td>
+</tr>
+<tr>
+    <td class="stt-cell">72</td>
+    <td><span class="code-cell">TVU-LT-001</span></td>
+    <td class="name-cell">Laptop ThinkPad X1 Carbon Gen 9 #3</td>
+    <td class="price-cell original" style="text-align:right">21.028.003 ?</td>
+    <td class="date-cell">21/12/2025</td>
+    <td style="text-align:center"><span class="badge-year y0">0</span></td>
+    <td class="price-cell remaining" style="text-align:right">21.028.003 ?</td>
+</tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="report-footer">
+            <span>Biên b?n du?c t?o t? h? th?ng <strong>TVU-ITAM</strong> — Ð?i h?c Trà Vinh</span>
+            <span>In ngày: <strong>07/06/2026</strong></span>
+        </div>
+    </div>
+</div>
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch(err => {
+            console.error('SW registration failed:', err);
+        });
+    });
+}
+</script>
+</body>
+</html>
+
+

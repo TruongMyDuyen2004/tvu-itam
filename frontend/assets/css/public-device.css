@@ -1,0 +1,35 @@
+.public-page { min-height: 100vh; background: linear-gradient(160deg, #F0F4FF 0%, #F8FAFC 50%, #FFFFFF 100%); padding: 1rem; display: flex; align-items: center; justify-content: center; }
+.public-container { max-width: 480px; margin: 0 auto; }
+
+.public-header { text-align: center; margin-bottom: 1rem; }
+.public-header .gov-label { font-size: .68rem; color: var(--text-muted); letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+.public-header .school-name { font-size: .95rem; font-weight: 700; color: var(--primary); margin-top: .2rem; }
+.public-header .system-name { font-size: .75rem; color: var(--text-secondary); margin-top: .1rem; }
+
+.public-card { background: var(--bg-card); border-radius: var(--radius-md); box-shadow: 0 2px 16px rgba(0,0,0,.06); overflow: hidden; border: 1px solid var(--border); }
+
+.public-card-image { width: 100%; height: 200px; object-fit: cover; background: var(--bg-base); display: none; }
+.public-card-image.visible { display: block; }
+
+.public-card-body { padding: 1.25rem 1.5rem; }
+.public-device-code { font-size: .78rem; font-weight: 600; color: var(--primary); letter-spacing: .02em; margin-bottom: .25rem; }
+.public-device-name { font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin: .25rem 0 .75rem; line-height: 1.3; }
+
+.public-info-grid { display: grid; gap: .65rem; margin-top: 1rem; }
+.public-info-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding: .45rem 0; border-bottom: 1px solid var(--border-light); font-size: .85rem; }
+.public-info-row:last-child { border-bottom: none; }
+.public-info-label { color: var(--text-muted); flex-shrink: 0; font-size: .82rem; }
+.public-info-value { font-weight: 500; text-align: right; color: var(--text-primary); font-size: .85rem; }
+
+.public-section-title { font-size: .75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin: 1rem 0 .5rem; padding-top: .75rem; border-top: 1px solid var(--border-light); }
+.public-maint-item { font-size: .8rem; padding: .4rem 0; color: var(--text-secondary); }
+
+.public-footer { text-align: center; padding: 1rem 0 1.5rem; font-size: .75rem; color: var(--text-muted); }
+.public-footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
+.public-footer a:hover { text-decoration: underline; }
+
+.public-loading, .public-error { text-align: center; padding: 2.5rem 1.5rem; }
+.public-error h2 { font-size: 1.05rem; color: var(--text-primary); margin-bottom: .5rem; }
+.public-error p { color: var(--text-muted); font-size: .85rem; }
+
+@media (max-width: 400px) { .public-page { padding: .75rem; } .public-device-name { font-size: 1.05rem; } }

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tra cứu thiết bị | TVU-ITAM</title>
+    <meta name="description" content="Tra cứu nhanh thông tin tài sản CNTT - Đại học Trà Vinh">
+    <meta name="robots" content="noindex">
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#DC2626">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="TVU-ITAM">
+    <link rel="apple-touch-icon" href="/assets/images/logo-tvu.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="/assets/css/public-device.css">
+</head>
+<body>
+    <div class="public-page">
+        <div class="public-container">
+            <header class="public-header">
+                <div class="gov-label">Đại học Trà Vinh</div>
+                <div class="school-name">QUẢN LÝ TÀI SẢN CNTT</div>
+                <div class="system-name">Tra cứu thiết bị qua mã QR</div>
+            </header>
+
+            <div id="publicContent">
+                <div class="public-card">
+                    <div class="public-loading">
+                        <div class="spinner" style="margin:0 auto 1rem"></div>
+                        <p style="color:var(--text-muted);font-size:.9rem">Đang tải thông tin thiết bị...</p>
+                    </div>
+                </div>
+                <!--SSR_DEVICE_HTML-->
+            </div>
+        </div>
+    </div>
+    <script src="/assets/js/public-device.js"></script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js').catch(err => {
+                console.error('SW registration failed:', err);
+            });
+        });
+    }
+    </script>
+</body>
+</html>

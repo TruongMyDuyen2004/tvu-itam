@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test QR — TVU-ITAM</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#DC2626">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="TVU-ITAM">
+    <link rel="apple-touch-icon" href="/assets/images/logo-tvu.png">
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 420px; margin: 2rem auto; padding: 1rem; text-align: center; }
+        input { width: 100%; padding: .6rem; font-size: 1rem; margin: .5rem 0; box-sizing: border-box; }
+        img { max-width: 280px; margin: 1rem 0; border: 1px solid #ddd; }
+        .url { font-size: .85rem; word-break: break-all; background: #E8F3FD; padding: .75rem; border-radius: 8px; text-align: left; }
+        .warn { color: #c62828; font-size: .9rem; margin: 1rem 0; }
+        .ok { color: #2e7d32; font-size: .9rem; }
+    </style>
+</head>
+<body>
+    <h1>Test QR điện thoại</h1>
+    <p class="warn">Không quét QR cũ (192.168.1.6). Dùng QR bên dưới.</p>
+    <label>Mã thiết bị:</label>
+    <input type="text" id="code" value="TVU-PC-001">
+    <button type="button" id="btn" style="padding:.6rem 1.2rem;font-size:1rem;cursor:pointer">Tạo QR</button>
+    <div id="out"></div>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+    <script>
+    async function render() {
+        const code = document.getElementById('code').value.trim();
+        const out = document.getElementById('out');
+        if (!code) return;
+        let base = '';
+        try {
+            const r = await fetch('/api/public/info');
+            const j = await r.json();
+            base = j.data.public_base_url;
+        } catch (e) {
+            out.innerHTML = '<p class="warn">Server chưa chạy. Chạy: cd KLTN_QLTSS && npm start</p>';
+            return;
+        }
+        const url = base + '/q/' + encodeURIComponent(code);
+        const dataUrl = await QRCode.toDataURL(url, { width: 320, margin: 2 });
+        out.innerHTML = `
+            <p class="ok">IP đúng: <b>${base}</b></p>
+            <img src="${dataUrl}" alt="QR">
+            <div class="url"><strong>Gõ trên điện thoại (cùng Wi-Fi):</strong><br><a href="${url}">${url}</a></div>
+            <p style="font-size:.8rem;color:#666">Phóng to màn hình này rồi quét QR, hoặc gõ link trên điện thoại.</p>
+        `;
+    }
+    document.getElementById('btn').addEventListener('click', render);
+    render();
+    </script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js').catch(err => {
+                console.error('SW registration failed:', err);
+            });
+        });
+    }
+    </script>
+</body>
+</html>
