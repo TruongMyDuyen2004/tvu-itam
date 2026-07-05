@@ -11,7 +11,8 @@ const pool = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0,
     timezone: '+07:00',
-    charset: 'utf8mb4'
+    charset: 'utf8mb4',
+    ssl: process.env.DB_SSL === 'true' ? {} : false
 });
 
 // Ensure UTF-8 Vietnamese support

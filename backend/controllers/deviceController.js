@@ -397,7 +397,7 @@ const getStats = async (req, res) => {
 
         if (viewMap['maintenance']) {
             const [rows] = await pool.query(
-                'SELECT COUNT(*) AS count FROM maintenance_schedules WHERE status IN ("pending", "in_progress") AND created_at > ?',
+                'SELECT COUNT(*) AS count FROM maintenance_schedules WHERE status IN (\'cho_xu_ly\', \'dang_thuc_hien\') AND created_at > ?',
                 [viewMap['maintenance']]
             );
             newPendingMaintenance = rows[0].count;
@@ -864,4 +864,273 @@ const exportStatsPdf = async (req, res) => {
     }
 };
 
-module.exports = { getAll, getOne, create, update, remove, getStats, getQRCode, downloadQR, exportExcel, importExcel, recall, getHistory, exportPdf, exportDepreciationPdf, exportStatsPdf };
+// GET /api/devices/qr/all - Get all devices with QR codes for management
+const getAllQRCodes = async (req, res) => {
+    try {
+        const QRCode = require('qrcode');
+        let query = `
+            SELECT d.id, d.device_code, d.name, d.brand, d.model, d.status, d.serial_number,
+                   d.department_id, d.category_id, d.qr_status, d.image_url, d.location, d.warranty_expiry,
+                   dc.name AS category_name, dept.name AS department_name
+            FROM devices d
+            LEFT JOIN device_categories dc ON d.category_id = dc.id
+            LEFT JOIN departments dept ON d.department_id = dept.id
+            WHERE d.status != 'disposed'
+        `;
+        const params = [];
+
+        if (req.query.search) {
+            query += ' AND (d.name LIKE ? OR d.device_code LIKE ? OR d.brand LIKE ? OR d.model LIKE ?)';
+            const s = `%${req.query.search}%`;
+            params.push(s, s, s, s);
+        }
+        if (req.query.status) {
+            query += ' AND d.status = ?';
+            params.push(req.query.status);
+        }
+        if (req.query.department_id) {
+            query += ' AND d.department_id = ?';
+            params.push(req.query.department_id);
+        }
+        if (req.query.category_id) {
+            query += ' AND d.category_id = ?';
+            params.push(req.query.category_id);
+        }
+
+        query += ' ORDER BY d.device_code ASC';
+
+        const [rows] = await pool.query(query, params);
+
+        const devicesWithQR = await Promise.all(rows.map(async (device) => {
+            const url = buildDeviceQrUrl(device.device_code, req);
+            const qrDataURL = await QRCode.toDataURL(url, {
+                width: 200,
+                margin: 1,
+                errorCorrectionLevel: 'M'
+            });
+            return {
+                ...device,
+                qr_code: qrDataURL,
+                qr_url: url
+            };
+        }));
+
+        return res.json({ success: true, data: devicesWithQR, total: devicesWithQR.length });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: 'Lỗi tải danh sách QR code' });
+    }
+};
+
+// GET /api/devices/qr/bulk-download - Download multiple QR codes as ZIP
+const bulkDownloadQR = async (req, res) => {
+    try {
+        const QRCode = require('qrcode');
+        const JSZip = require('jszip');
+
+        let deviceIds = req.query.ids;
+        if (!deviceIds) {
+            return res.status(400).json({ success: false, message: 'Thiếu danh sách thiết bị' });
+        }
+
+        if (typeof deviceIds === 'string') {
+            deviceIds = deviceIds.split(',').map(id => parseInt(id.trim(), 10)).filter(id => id > 0);
+        }
+        if (!Array.isArray(deviceIds)) {
+            deviceIds = [deviceIds];
+        }
+
+        if (deviceIds.length === 0) {
+            return res.status(400).json({ success: false, message: 'Danh sách thiết bị không hợp lệ' });
+        }
+
+        const placeholders = deviceIds.map(() => '?').join(',');
+        const [rows] = await pool.query(`
+            SELECT d.id, d.device_code, d.name
+            FROM devices d
+            WHERE d.id IN (${placeholders})
+        `, deviceIds);
+
+        if (!rows.length) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy thiết bị' });
+        }
+
+        const zip = new JSZip();
+
+        for (const device of rows) {
+            try {
+                const url = buildDeviceQrUrl(device.device_code, req);
+                const buffer = await QRCode.toBuffer(url, {
+                    width: 400,
+                    margin: 2,
+                    errorCorrectionLevel: 'M',
+                    type: 'png'
+                });
+                const safeName = (device.name || 'device').replace(/[^a-zA-Z0-9_\-]/g, '_');
+                zip.file(`QR_${device.device_code}_${safeName}.png`, buffer);
+            } catch (qrErr) {
+                console.error(`QR error for ${device.device_code}:`, qrErr.message);
+            }
+        }
+
+        const zipBuffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', `attachment; filename="QR_Codes_${new Date().toISOString().slice(0,10)}.zip"`);
+        res.send(zipBuffer);
+    } catch (err) {
+        console.error('Bulk download error:', err);
+        if (!res.headersSent) {
+            return res.status(500).json({ success: false, message: 'Lỗi tải QR code hàng loạt' });
+        }
+    }
+};
+
+// PUT /api/devices/qr/status - Update QR status for a device
+const updateQRStatus = async (req, res) => {
+    try {
+        const { id, qr_status } = req.body;
+        if (!id || !qr_status) {
+            return res.status(400).json({ success: false, message: 'Thiếu thông tin' });
+        }
+        if (!['pending', 'printed', 'assigned'].includes(qr_status)) {
+            return res.status(400).json({ success: false, message: 'Trạng thái không hợp lệ' });
+        }
+        const [result] = await pool.query('UPDATE devices SET qr_status = ? WHERE id = ?', [qr_status, id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy thiết bị' });
+        }
+        return res.json({ success: true, message: 'Cập nhật trạng thái QR thành công' });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: 'Lỗi cập nhật trạng thái QR' });
+    }
+};
+
+// PUT /api/devices/qr/status/bulk - Update QR status for multiple devices
+const bulkUpdateQRStatus = async (req, res) => {
+    try {
+        const { ids, qr_status } = req.body;
+        if (!ids || !ids.length || !qr_status) {
+            return res.status(400).json({ success: false, message: 'Thiếu thông tin' });
+        }
+        if (!['pending', 'printed', 'assigned'].includes(qr_status)) {
+            return res.status(400).json({ success: false, message: 'Trạng thái không hợp lệ' });
+        }
+        const placeholders = ids.map(() => '?').join(',');
+        const [result] = await pool.query(`UPDATE devices SET qr_status = ? WHERE id IN (${placeholders})`, [qr_status, ...ids]);
+        return res.json({ success: true, message: `Đã cập nhật ${result.affectedRows} thiết bị`, updated: result.affectedRows });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: 'Lỗi cập nhật hàng loạt' });
+    }
+};
+
+// POST /api/devices/qr/scan-log - Log a QR scan event
+const logScan = async (req, res) => {
+    try {
+        const { device_id, action } = req.body;
+        if (!device_id) {
+            return res.status(400).json({ success: false, message: 'Thiếu device_id' });
+        }
+        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+        await pool.query(
+            'INSERT INTO qr_scan_logs (device_id, user_id, action, ip_address) VALUES (?, ?, ?, ?)',
+            [device_id, req.user?.id || null, action || 'view', ip]
+        );
+        return res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: 'Lỗi ghi nhận quét' });
+    }
+};
+
+// PUT /api/devices/qr/scan-update - Update device info after scan
+const scanUpdate = async (req, res) => {
+    try {
+        const { device_id, location, status, department_id, assigned_user_id, notes, qr_status } = req.body;
+        if (!device_id) {
+            return res.status(400).json({ success: false, message: 'Thiếu device_id' });
+        }
+        const [old] = await pool.query('SELECT * FROM devices WHERE id = ?', [device_id]);
+        if (!old.length) return res.status(404).json({ success: false, message: 'Không tìm thấy thiết bị' });
+
+        const fields = [];
+        const values = [];
+        const updatedFields = {};
+
+        if (location !== undefined) { fields.push('location = ?'); values.push(location); updatedFields.location = location; }
+        if (status !== undefined) { fields.push('status = ?'); values.push(status); updatedFields.status = status; }
+        if (department_id !== undefined) { fields.push('department_id = ?'); values.push(department_id); updatedFields.department_id = department_id; }
+        if (assigned_user_id !== undefined) { fields.push('assigned_user_id = ?'); values.push(assigned_user_id); updatedFields.assigned_user_id = assigned_user_id; }
+        if (notes !== undefined) { fields.push('notes = ?'); values.push(notes); updatedFields.notes = notes; }
+        if (qr_status !== undefined) { fields.push('qr_status = ?'); values.push(qr_status); updatedFields.qr_status = qr_status; }
+
+        if (!fields.length) {
+            return res.status(400).json({ success: false, message: 'Không có trường nào cần cập nhật' });
+        }
+
+        values.push(device_id);
+        await pool.query(`UPDATE devices SET ${fields.join(', ')} WHERE id = ?`, values);
+
+        // Log the update scan
+        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+        await pool.query(
+            'INSERT INTO qr_scan_logs (device_id, user_id, action, updated_fields, ip_address) VALUES (?, ?, ?, ?, ?)',
+            [device_id, req.user?.id || null, 'update', JSON.stringify(updatedFields), ip]
+        );
+
+        await recordAudit({
+            user_id: req.user?.id,
+            action: 'Cập nhật sau quét QR',
+            entity_type: 'device',
+            entity_id: device_id,
+            old_data: old[0],
+            new_data: updatedFields,
+            req
+        });
+
+        return res.json({ success: true, message: 'Cập nhật thành công' });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: 'Lỗi cập nhật' });
+    }
+};
+
+// GET /api/devices/qr/scan-logs - Get scan history
+const getScanLogs = async (req, res) => {
+    try {
+        const { page = 1, limit = 50, device_id } = req.query;
+        const offset = (page - 1) * limit;
+        let where = '';
+        const params = [];
+
+        if (device_id) {
+            where = 'WHERE l.device_id = ?';
+            params.push(device_id);
+        }
+
+        const [rows] = await pool.query(`
+            SELECT l.*, d.device_code, d.name AS device_name, u.full_name AS user_name
+            FROM qr_scan_logs l
+            LEFT JOIN devices d ON l.device_id = d.id
+            LEFT JOIN users u ON l.user_id = u.id
+            ${where}
+            ORDER BY l.scanned_at DESC
+            LIMIT ? OFFSET ?
+        `, [...params, parseInt(limit), parseInt(offset)]);
+
+        const [countResult] = await pool.query(`SELECT COUNT(*) AS total FROM qr_scan_logs l ${where}`, params);
+
+        return res.json({
+            success: true,
+            data: rows,
+            pagination: { page: parseInt(page), limit: parseInt(limit), total: countResult[0].total }
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: 'Lỗi lấy lịch sử quét' });
+    }
+};
+
+module.exports = { getAll, getOne, create, update, remove, getStats, getQRCode, downloadQR, exportExcel, importExcel, recall, getHistory, exportPdf, exportDepreciationPdf, exportStatsPdf, getAllQRCodes, bulkDownloadQR, updateQRStatus, bulkUpdateQRStatus, logScan, scanUpdate, getScanLogs };

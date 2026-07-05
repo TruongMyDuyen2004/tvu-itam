@@ -324,8 +324,8 @@ INSERT INTO maintenance_schedules (maintenance_code, device_id, request_date, st
 ('BT008', (SELECT id FROM devices WHERE device_code = 'TVU-LT-020'), '2026-06-20', '2026-06-25', 'dinh_ky', 2, 'Kiểm tra tổng quát laptop hiệu trưởng', 'cho_xu_ly', 'high', 1),
 ('BT009', (SELECT id FROM devices WHERE device_code = 'TVU-SW-001'), '2026-06-25', '2026-07-01', 'dinh_ky', 2, 'Cập nhật firmware switch', 'cho_xu_ly', 'medium', 1),
 ('BT010', (SELECT id FROM devices WHERE device_code = 'TVU-PR-020'), '2026-07-05', '2026-07-10', 'dinh_ky', 2, 'Vệ sinh đầu in, thay drum', 'cho_xu_ly', 'medium', 1),
-((SELECT id FROM devices WHERE device_code = 'TVU-PC-001'), 'preventive', '2026-06-20', 2, 'Bảo trì định kỳ tháng 6', 'pending', 'medium', 1),
-((SELECT id FROM devices WHERE device_code = 'TVU-SV-001'), 'inspection', '2026-07-05', 2, 'Kiểm tra server, dọn log, sao lưu', 'pending', 'critical', 1);
+('BT011', (SELECT id FROM devices WHERE device_code = 'TVU-PC-001'), CURDATE(), '2026-06-20', 'dinh_ky', 2, 'Bảo trì định kỳ tháng 6', 'cho_xu_ly', 'medium', 1),
+('BT012', (SELECT id FROM devices WHERE device_code = 'TVU-SV-001'), CURDATE(), '2026-07-05', 'dinh_ky', 2, 'Kiểm tra server, dọn log, sao lưu', 'cho_xu_ly', 'critical', 1);
 
 -- Sample Incidents
 INSERT INTO incident_reports (device_id, reported_by, issue, description, severity, status, assigned_to) VALUES

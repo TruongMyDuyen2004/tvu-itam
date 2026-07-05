@@ -26,9 +26,12 @@ const API = (() => {
 
     const request = async (method, path, body = null) => {
         try {
+            const token = getToken();
+            const separator = path.includes('?') ? '&' : '?';
+            const urlWithToken = token ? `${BASE}${path}${separator}token=${encodeURIComponent(token)}` : `${BASE}${path}`;
             const opts = { method, headers: headers() };
             if (body) opts.body = JSON.stringify(body);
-            const res = await fetch(BASE + path, opts);
+            const res = await fetch(urlWithToken, opts);
             const data = await res.json();
             if (res.status === 401) {
                 localStorage.removeItem('tvu_token');

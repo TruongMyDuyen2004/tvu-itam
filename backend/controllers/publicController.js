@@ -4,6 +4,7 @@ const { getLanIp, getPublicBaseUrl } = require('../config/appUrl');
 const DEVICE_SELECT = `
     SELECT d.id, d.device_code, d.name, d.brand, d.model, d.serial_number,
            d.status, d.location, d.warranty_expiry, d.image_url,
+           d.department_id, d.assigned_user_id, d.qr_status,
            dc.name AS category_name, dc.icon AS category_icon,
            dept.name AS department_name,
            u.full_name AS assigned_user_name
@@ -24,6 +25,9 @@ const formatDevice = (row) => ({
     location: row.location,
     warranty_expiry: row.warranty_expiry,
     image_url: row.image_url,
+    department_id: row.department_id,
+    assigned_user_id: row.assigned_user_id,
+    qr_status: row.qr_status,
     category_name: row.category_name,
     category_icon: row.category_icon,
     department_name: row.department_name,

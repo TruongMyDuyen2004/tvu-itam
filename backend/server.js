@@ -375,6 +375,20 @@ app.use((err, req, res, next) => {
                 FOREIGN KEY (checked_by) REFERENCES users(id) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         `);
+        // QR scan logs table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS qr_scan_logs (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                device_id INT NOT NULL,
+                user_id INT NULL,
+                action ENUM('view','update') DEFAULT 'view',
+                updated_fields TEXT NULL,
+                ip_address VARCHAR(45),
+                scanned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        `);
         // Ensure disposal report columns exist
         try {
             await pool.query(`ALTER TABLE disposals ADD COLUMN report_number VARCHAR(50) NULL AFTER notes`);

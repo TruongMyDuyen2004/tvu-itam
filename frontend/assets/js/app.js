@@ -9,6 +9,7 @@ const App = (() => {
     const pages = {
         dashboard: { title: 'Dashboard', subtitle: 'Tổng quan hệ thống', render: () => DashboardPage.render() },
         devices: { title: 'Quản lý Thiết bị', subtitle: 'Danh sách thiết bị CNTT', render: () => DevicesPage.render() },
+        qrcode: { title: 'Quản lý Mã QR', subtitle: 'Quản lý và tải mã QR thiết bị', render: () => QRCodePage.render() },
         maintenance: { title: 'Lịch Bảo Trì', subtitle: 'Theo dõi và quản lý bảo trì', render: () => MaintenancePage.render() },
         incidents: { title: 'Báo cáo Sự cố', subtitle: 'Quản lý và xử lý sự cố', render: () => IncidentsPage.render() },
         transfers: { title: 'Điều chuyển Tài sản', subtitle: 'Quản lý điều chuyển thiết bị', render: () => TransfersPage.render() },
