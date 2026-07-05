@@ -2,9 +2,9 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 
 const path = require('path');
-const FONT_PATH = path.join(__dirname, '../fonts/times.ttf');
-const FONT_BOLD_PATH = path.join(__dirname, '../fonts/timesbd.ttf');
-const FONT_ITALIC_PATH = path.join(__dirname, '../fonts/timesi.ttf');
+const FONT_PATH = path.join(__dirname, '../fonts/NotoSans-Regular.ttf');
+const FONT_BOLD_PATH = path.join(__dirname, '../fonts/NotoSans-Bold.ttf');
+const FONT_ITALIC_PATH = path.join(__dirname, '../fonts/NotoSans-Regular.ttf');
 
 const ML = 50, MR = 50, PW = 595.28, CW = PW - ML - MR;
 
