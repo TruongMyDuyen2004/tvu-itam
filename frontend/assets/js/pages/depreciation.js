@@ -30,6 +30,7 @@ const DepreciationPage = (() => {
 
     const render = async () => {
         const content = document.getElementById('mainContent');
+        canEditDep = App.canEdit();
         content.innerHTML = `
         <div class="page-section">
             <div class="dev-header">
@@ -189,6 +190,7 @@ const DepreciationPage = (() => {
     };
 
     let allAssets = [];
+    let canEditDep = false;
 
     async function loadData() {
         try {
@@ -252,9 +254,9 @@ const DepreciationPage = (() => {
                 <td style="white-space:nowrap"><div style="display:flex;flex-direction:column;gap:3px;min-width:90px"><span style="color:#6366F1;font-weight:500">${fmt.currency(a.depreciatedAmount)}</span><div style="display:flex;align-items:center;gap:5px"><div style="flex:1;height:4px;background:#E0E7FF;border-radius:2px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${depColor};border-radius:2px;transition:width .5s ease"></div></div><span style="font-size:.62rem;font-weight:600;color:${depColor}">${depLabel}</span></div></div></td>
                 <td style="white-space:nowrap"><span style="color:#4F46E5;font-weight:600">${fmt.currency(a.currentValue)}</span></td>
                 <td style="text-align:right;white-space:nowrap">
-                    <button class="dep-edit-btn-modern dep-edit-btn" title="Sửa tỷ lệ" data-id="${a.id}" data-name="${a.name}" data-rate="${a.rate}" data-price="${a.purchase_price}" data-date="${a.purchase_date}">
+                    ${canEditDep ? `<button class="dep-edit-btn-modern dep-edit-btn" title="Sửa tỷ lệ" data-id="${a.id}" data-name="${a.name}" data-rate="${a.rate}" data-price="${a.purchase_price}" data-date="${a.purchase_date}">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    </button>
+                    </button>` : ''}
                 </td>
             </tr>`;
         }).join('');

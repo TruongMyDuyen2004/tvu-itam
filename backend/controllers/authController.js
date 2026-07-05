@@ -295,36 +295,70 @@ const forgotPassword = async (req, res) => {
         const resetLink = `${baseUrl}/reset-password.html?token=${token}`;
 
         // Send email
+        console.log('[MAIL] Sending reset email to: ' + user.email);
+        const emailSubject = 'Đặt lại mật khẩu - TVU-ITAM';
+        const emailHtml = `<!DOCTYPE html>
+<html lang="vi">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:32px 16px;">
+<tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);">
+  <tr><td style="background:#1e3a5f;padding:24px 32px;text-align:center;">
+    <h1 style="color:#fff;margin:0;font-size:20px;letter-spacing:.5px;">TVU-ITAM</h1>
+    <p style="color:rgba(255,255,255,.7);margin:4px 0 0;font-size:13px;">Đại học Trà Vinh</p>
+  </td></tr>
+  <tr><td style="padding:32px;">
+    <p style="color:#334155;margin:0 0 16px;font-size:15px;">Xin chào <strong>${user.full_name}</strong>,</p>
+    <p style="color:#475569;margin:0 0 16px;font-size:15px;line-height:1.6;">Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản TVU-ITAM. Nhấn nút bên dưới để đặt lại:</p>
+    <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 0;">
+      <a href="${resetLink}" style="display:inline-block;padding:14px 36px;background:#1e3a5f;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:15px;">Đặt lại mật khẩu</a>
+    </td></tr></table>
+    <p style="color:#64748b;font-size:13px;margin:0 0 8px;">Hoặc copy đường dẫn sau vào trình duyệt:</p>
+    <p style="color:#1e3a5f;font-size:12px;word-break:break-all;margin:0;background:#f1f5f9;padding:10px 14px;border-radius:6px;line-height:1.5;">${resetLink}</p>
+    <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
+    <p style="color:#94a3b8;font-size:12px;margin:0;line-height:1.6;">Liên kết hết hạn sau <strong>1 giờ</strong>. Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>
+  </td></tr>
+  <tr><td style="background:#f8fafc;padding:16px 32px;text-align:center;">
+    <p style="color:#94a3b8;font-size:11px;margin:0;">© 2026 Đại học Trà Vinh — Ban Công nghệ Thông tin</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+        const emailText = `Đặt lại mật khẩu - TVU-ITAM
+
+Xin chào ${user.full_name},
+
+Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản TVU-ITAM.
+Vui lòng truy cập liên kết sau để đặt lại mật khẩu:
+
+${resetLink}
+
+Liên kết hết hạn sau 1 giờ.
+Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.
+
+© 2026 Đại học Trà Vinh — Ban Công nghệ Thông tin`;
+
         const sent = await sendMail({
             to: user.email,
-            subject: 'Đặt lại mật khẩu - Hệ thống Quản lý Tài sản CNTT (TVU-ITAM)',
-            html: `
-                <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 12px;">
-                    <div style="text-align: center; margin-bottom: 24px;">
-                        <h2 style="color: #1e3a5f; margin: 0;">TVU-ITAM</h2>
-                        <p style="color: #64748b; margin: 4px 0 0;">Đại học Trà Vinh</p>
-                    </div>
-                    <div style="background: #fff; padding: 28px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.1);">
-                        <p style="color: #334155; margin: 0 0 16px;">Xin chào <strong>${user.full_name}</strong>,</p>
-                        <p style="color: #475569; margin: 0 0 16px;">Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản TVU-ITAM. Nhấn nút bên dưới để tiếp tục:</p>
-                        <div style="text-align: center; margin: 24px 0;">
-                            <a href="${resetLink}" style="display: inline-block; padding: 12px 32px; background: #1e3a5f; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px;">Đặt lại mật khẩu</a>
-                        </div>
-                        <p style="color: #64748b; font-size: 13px; margin: 0 0 8px;">Hoặc copy đường dẫn sau vào trình duyệt:</p>
-                        <p style="color: #1e3a5f; font-size: 13px; word-break: break-all; margin: 0; background: #f1f5f9; padding: 8px 12px; border-radius: 4px;">${resetLink}</p>
-                        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-                        <p style="color: #94a3b8; font-size: 13px; margin: 0;">Liên kết hết hạn sau <strong>1 giờ</strong>. Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>
-                    </div>
-                </div>
-            `,
+            subject: emailSubject,
+            html: emailHtml,
+            text: emailText,
         });
+        console.log('[MAIL] Send result: ' + (sent ? 'SUCCESS' : 'FAILED') + ' to ' + user.email);
 
         if (!sent) {
-            console.log('[MAIL] Email could not be sent (SMTP not configured). Reset link: ' + resetLink);
-            return res.json({ success: true, message: 'Vui lòng kiểm tra email để đặt lại mật khẩu.', resetLink });
+            console.error('[MAIL] Failed to send reset email to ' + user.email + '. Reset link: ' + resetLink);
+            return res.status(500).json({
+                success: false,
+                message: 'Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại sau hoặc liên hệ quản trị viên.',
+                resetLink: process.env.NODE_ENV === 'development' ? resetLink : undefined
+            });
         }
 
-        return res.json({ success: true, message: 'Vui lòng kiểm tra email để đặt lại mật khẩu.' });
+        return res.json({ success: true, message: 'Vui lòng kiểm tra email để đặt lại mật khẩu.', resetLink });
     } catch (err) {
         console.error('Forgot password error:', err);
         return res.status(500).json({ success: false, message: 'Lỗi server' });

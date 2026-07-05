@@ -30,6 +30,7 @@ window.ReportsPage = (() => {
                     </div>
                 </div>
                 <div class="dev-header-right">
+                    ${App.canEdit() ? `
                     <button class="btn btn-primary btn-sm" id="exportStatsPdfBtn" title="Xuất PDF thống kê">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                         Báo cáo PDF
@@ -41,7 +42,7 @@ window.ReportsPage = (() => {
                     <button class="btn btn-secondary btn-sm" id="exportDepreciationPdfBtn" title="Xuất PDF khấu hao">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
                         Khấu hao
-                    </button>
+                    </button>` : ''}
                 </div>
             </div>
         </div>

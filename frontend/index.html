@@ -412,25 +412,7 @@
             <div class="hero-image">
                 <div class="hero-image-wrap">
                     <div class="hero-image-inner">
-                        <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(37,99,235,.08),rgba(15,23,42,.5)),url('assets/images/dhtv.jpg') center/cover;border-radius:inherit"></div>
-                        <div style="position:relative;z-index:2;padding:1.5rem;display:flex;flex-direction:column;height:100%">
-                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:auto">
-                                <div style="width:32px;height:32px;border-radius:10px;background:rgba(37,99,235,.3);display:flex;align-items:center;justify-content:center">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                                </div>
-                                <span style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.8)">TVU-ITAM Dashboard</span>
-                            </div>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-                                <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;backdrop-filter:blur(8px)"><div style="font-size:.65rem;color:rgba(255,255,255,.5)">Tổng thiết bị</div><div style="font-size:1.1rem;font-weight:700;color:#fff">83</div></div>
-                                <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;backdrop-filter:blur(8px)"><div style="font-size:.65rem;color:rgba(255,255,255,.5)">Đang hoạt động</div><div style="font-size:1.1rem;font-weight:700;color:#22D3EE">69</div></div>
-                                <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;backdrop-filter:blur(8px)"><div style="font-size:.65rem;color:rgba(255,255,255,.5)">Bảo trì</div><div style="font-size:1.1rem;font-weight:700;color:#FBBF24">1</div></div>
-                                <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;backdrop-filter:blur(8px)"><div style="font-size:.65rem;color:rgba(255,255,255,.5)">Sự cố</div><div style="font-size:1.1rem;font-weight:700;color:#F87171">4</div></div>
-                            </div>
-                            <div style="display:flex;align-items:center;gap:8px">
-                                <div style="flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,.08)"><div style="width:72%;height:100%;border-radius:4px;background:linear-gradient(90deg,#22D3EE,#2DD4BF)"></div></div>
-                                <span style="font-size:.65rem;color:rgba(255,255,255,.5)">72% uptime</span>
-                            </div>
-                        </div>
+                        <div style="position:absolute;inset:0;background:url('assets/images/dhtv.jpg') center/cover;border-radius:inherit"></div>
                     </div>
                 </div>
             </div>
@@ -1031,8 +1013,16 @@
                         overlay.querySelector('#forgotCheckLink').style.display = 'none';
                     }
                     emailInput.value = '';
+                } else if (res.data && res.data.resetLink) {
+                    step1.style.display = 'none';
+                    step2.style.display = 'block';
+                    checkGroup.style.display = 'none';
+                    resetGroup.style.display = '';
+                    step2Msg.textContent = 'Không gửi được email. Bạn có thể đặt lại mật khẩu trực tiếp.';
+                    resetBtn.href = res.data.resetLink;
+                    emailInput.value = '';
                 } else {
-                    errDiv.textContent = res.data.message || 'Lỗi gửi yêu cầu';
+                    errDiv.textContent = res.data?.message || 'Không thể gửi email. Vui lòng thử lại sau.';
                     errDiv.style.display = 'block';
                 }
             });

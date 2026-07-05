@@ -83,6 +83,10 @@ window.DevicesPage = (() => {
         if (catRes.ok) categories = catRes.data.data || [];
         if (deptRes.ok) departments = deptRes.data.data || [];
         if (usrRes.ok) users = usrRes.data.data || [];
+        const cu = App.getCurrentUser();
+        if (cu?.role === 'user') {
+            allDevices = allDevices.filter(d => d.department_id === cu.department_id);
+        }
         filtered = allDevices.filter(d => d.status !== 'disposed');
     };
 
@@ -109,7 +113,7 @@ window.DevicesPage = (() => {
         filtered = allDevices.filter(d => {
             const s = params.search?.toLowerCase() || '';
             if (!params.status && d.status === 'disposed') return false;
-            if (currentUser?.role === 'user' && d.assigned_user_id !== currentUser.id) return false;
+            if (currentUser?.role === 'user' && String(d.department_id) !== String(currentUser.department_id)) return false;
             if (statFilter && d.status !== statFilter) return false;
             return (!s || d.name?.toLowerCase().includes(s) || d.device_code?.toLowerCase().includes(s) || d.brand?.toLowerCase().includes(s))
                 && (!params.status || d.status === params.status)

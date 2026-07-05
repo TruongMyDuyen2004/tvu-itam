@@ -23,7 +23,7 @@ router.post('/import', requireRole('superadmin', 'admin'), excelUpload.single('f
 router.get('/export-pdf', requireRole('superadmin', 'admin'), ctrl.exportPdf);
 router.get('/depreciation/export-pdf', requireRole('superadmin', 'admin'), ctrl.exportDepreciationPdf);
 router.get('/stats/export-pdf', requireRole('superadmin', 'admin'), ctrl.exportStatsPdf);
-router.get('/qr/all', requireRole('superadmin', 'admin'), ctrl.getAllQRCodes);
+router.get('/qr/all', requireRole('superadmin', 'admin', 'user'), ctrl.getAllQRCodes);
 router.get('/qr/bulk-download', requireRole('superadmin', 'admin'), ctrl.bulkDownloadQR);
 router.put('/qr/status', requireRole('superadmin', 'admin'), ctrl.updateQRStatus);
 router.put('/qr/status/bulk', requireRole('superadmin', 'admin'), ctrl.bulkUpdateQRStatus);

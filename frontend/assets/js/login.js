@@ -210,8 +210,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         overlay.querySelector('#forgotCheckLink').style.display = 'none';
                     }
                     emailInput.value = '';
+                } else if (res.data && res.data.resetLink) {
+                    step1.style.display = 'none';
+                    step2.style.display = 'block';
+                    checkGroup.style.display = 'none';
+                    resetGroup.style.display = '';
+                    step2Msg.textContent = 'Không gửi được email. Bạn có thể đặt lại mật khẩu trực tiếp.';
+                    resetBtn.href = res.data.resetLink;
+                    resetBtn.style.display = '';
+                    emailInput.value = '';
                 } else {
-                    errDiv.textContent = res.data.message || 'Lỗi gửi yêu cầu';
+                    errDiv.textContent = res.data?.message || 'Không thể gửi email. Vui lòng thử lại sau.';
                     errDiv.style.display = 'block';
                 }
             });

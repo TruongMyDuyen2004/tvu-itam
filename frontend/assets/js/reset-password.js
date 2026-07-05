@@ -2,8 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
     if (!token) {
-        document.getElementById('resetForm').innerHTML = '<div class="alert-error" style="display:block;text-align:center;padding:20px;">Liên kết không hợp lệ. Vui lòng yêu cầu đặt lại mật khẩu.</div>'
-            + '<div class="form-toggle" style="margin-top:16px"><a href="/">Quay lại đăng nhập</a></div>';
+        document.getElementById('resetForm').innerHTML = '<div class="error-box" style="display:block;text-align:center;padding:20px;">Liên kết không hợp lệ. Vui lòng yêu cầu đặt lại mật khẩu.</div>'
+            + '<div class="back-link" style="margin-top:16px"><a href="/">Quay lại đăng nhập</a></div>';
         return;
     }
 
@@ -15,10 +15,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetBtnText = document.getElementById('resetBtnText');
     const resetSpinner = document.getElementById('resetSpinner');
 
-    // Toggle password visibility
-    document.getElementById('togglePwd').addEventListener('click', () => {
-        const type = passwordInput.type === 'password' ? 'text' : 'password';
-        passwordInput.type = type;
+    // Toggle password visibility - Mật khẩu mới
+    document.getElementById('togglePwd').addEventListener('click', function() {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        this.querySelector('.eye-open').style.display = isPassword ? 'none' : 'block';
+        this.querySelector('.eye-closed').style.display = isPassword ? 'block' : 'none';
+    });
+
+    // Toggle password visibility - Xác nhận mật khẩu
+    document.getElementById('togglePwdConfirm').addEventListener('click', function() {
+        const isPassword = confirmInput.type === 'password';
+        confirmInput.type = isPassword ? 'text' : 'password';
+        this.querySelector('.eye-open').style.display = isPassword ? 'none' : 'block';
+        this.querySelector('.eye-closed').style.display = isPassword ? 'block' : 'none';
     });
 
     form.addEventListener('submit', async (e) => {
@@ -51,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (res.ok && res.data.success) {
             errorDiv.textContent = res.data.message + ' Đang chuyển hướng...';
             errorDiv.style.color = '#10B981';
-            errorDiv.style.background = 'rgba(16, 185, 129, 0.1)';
-            errorDiv.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+            errorDiv.style.background = 'rgba(16, 185, 129, 0.08)';
+            errorDiv.style.borderColor = 'rgba(16, 185, 129, 0.25)';
             errorDiv.style.display = 'block';
             setTimeout(() => { window.location.href = '/'; }, 3000);
         } else {

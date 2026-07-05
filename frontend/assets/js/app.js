@@ -38,8 +38,7 @@ const App = (() => {
 
         // Check permission
         if (currentUser && currentUser.role === 'user') {
-            // User không được truy cập các trang quản trị cấp cao
-            const restrictedPages = ['departments', 'categories', 'transfers', 'disposals', 'users', 'logs', 'settings', 'loginHistory', 'inventory'];
+            const restrictedPages = ['departments', 'categories', 'transfers', 'disposals', 'users', 'logs', 'settings', 'loginHistory', 'inventory', 'maintenance', 'reports', 'depreciation', 'warehouse'];
             if (restrictedPages.includes(page)) {
                 Toast.error('Bạn không có quyền truy cập trang này');
                 page = 'dashboard';
@@ -330,6 +329,7 @@ const App = (() => {
         const navDisposals = document.getElementById('nav-disposals');
         const navInventory = document.getElementById('nav-inventory');
         const navWarehouse = document.getElementById('nav-warehouse');
+        const navMaintenance = document.getElementById('nav-maintenance');
         const navReports = document.getElementById('nav-reports');
         const navDepreciation = document.getElementById('nav-depreciation');
         const navLogs = document.getElementById('nav-logs');
@@ -337,6 +337,10 @@ const App = (() => {
         const navSettings = document.getElementById('nav-settings');
 
         if (currentUser.role === 'user') {
+            const navDashboard = document.getElementById('nav-dashboard');
+            if (navDashboard) navDashboard.style.display = 'none';
+            const navSectionOverview = document.querySelector('.sidebar-nav .nav-section-title');
+            if (navSectionOverview) navSectionOverview.style.display = 'none';
             if (navSectionAdmin) navSectionAdmin.style.display = 'none';
             if (navUsers) navUsers.style.display = 'none';
             if (navDepartments) navDepartments.style.display = 'none';
@@ -345,6 +349,9 @@ const App = (() => {
             if (navDisposals) navDisposals.style.display = 'none';
             if (navInventory) navInventory.style.display = 'none';
             if (navWarehouse) navWarehouse.style.display = 'none';
+            if (navMaintenance) navMaintenance.style.display = 'none';
+            const navQR = document.getElementById('nav-qrcode');
+            if (navQR) navQR.style.display = 'none';
             if (navSectionReports) navSectionReports.style.display = 'none';
             if (navReports) navReports.style.display = 'none';
             if (navDepreciation) navDepreciation.style.display = 'none';
@@ -703,7 +710,7 @@ const App = (() => {
         return skeletons[page] || skeletons.default;
     };
 
-    return { init, navigate, getCurrentUser: () => currentUser, getDashboardStats: () => dashboardStats };
+    return { init, navigate, getCurrentUser: () => currentUser, getDashboardStats: () => dashboardStats, canEdit: () => currentUser && (currentUser.role === 'superadmin' || currentUser.role === 'admin') };
 })();
 
 // PWA: online/offline detection

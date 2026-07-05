@@ -9,7 +9,7 @@ router.post('/register', register);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.get('/me', authenticate, me);
-router.get('/history', authenticate, requireRole('admin', 'superadmin'), getLoginHistory);
+router.get('/history', authenticate, requireRole('admin', 'superadmin', 'user'), getLoginHistory);
 router.get('/history/export', authenticate, requireRole('admin', 'superadmin'), exportLoginHistory);
 router.put('/profile', authenticate, updateProfile);
 router.put('/change-password', authenticate, changePassword);
